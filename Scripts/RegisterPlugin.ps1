@@ -1,3 +1,51 @@
+function Add-Plugin {
+    param (
+        [string]$PluginName
+    )
+
+    # Define the base path for plugins
+    $basePath = "C:\msys64\home\okpal\My Content Creations\ParaCreator\Plugins"
+
+    # Create the plugin directory
+    $pluginPath = Join-Path -Path $basePath -ChildPath $PluginName
+    New-Item -Path $pluginPath -ItemType Directory -Force
+
+    # Create the main plugin module file
+    $moduleFile = Join-Path -Path $pluginPath -ChildPath "$PluginName.psm1"
+    @"
+function Invoke-$PluginName {
+    param (
+        [string]`$Parameter1
+    )
+
+    return "$PluginName executed with parameter: `$Parameter1"
+}
+
+# Export the function
+Export-ModuleMember -Function Invoke-$PluginName
+
+"@ | Set-Content -Path $moduleFile
+
+    # Create a test script file for the plugin
+    $testFile = Join-Path -Path $pluginPath -ChildPath "Test-$PluginName.ps1"
+    @"
+# Import the plugin module
+Import-Module "$moduleFile"
+
+# Test the function
+`$result = Invoke-$PluginName -Parameter1 "TestValue"
+if (`$result -eq "$PluginName executed with parameter: TestValue") {
+    Write-Host "$PluginName test passed."
+} else {
+    Write-Host "$PluginName test failed."
+}
+"@ | Set-Content -Path $testFile
+
+    Write-Host "Plugin '$PluginName' created at '$pluginPath'."
+}
+
+Export-ModuleMember -Function Add-Plugin
+
 function Remove-Plugin {
     param (
         [string]$PluginName,
@@ -22,6 +70,8 @@ function Remove-Plugin {
     }
 }
 
+Export-ModuleMember -Function Remove-Plugin
+
 function Get-PluginInfo {
     param (
         [string]$ConfigPath
@@ -37,3 +87,5 @@ function Get-PluginInfo {
         Write-Error "Configuration file does not exist: $configFilePath"
     }
 }
+
+Export-ModuleMember -Function Get-PluginInfo
