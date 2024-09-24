@@ -1,4 +1,59 @@
 
+function New-Plugin {
+    param (
+        [string]$PluginName,
+        [string]$Description,
+        [string]$FilePath,
+        [string]$ConfigPath
+    )
+
+    # Create the plugin hashtable
+    $PluginData = @{
+        Name        = $PluginName
+        Description = $Description
+        FilePath    = $FilePath
+        Registered  = (Get-Date).ToString("o") # ISO 8601 format
+    }
+
+    # Load existing configuration
+    $ConfigFilePath = Join-Path -Path $ConfigPath -ChildPath "paraConfig.json"
+
+    if (Test-Path $ConfigFilePath) {
+        $ConfigData = Get-Content -Path $ConfigFilePath | ConvertFrom-Json
+    } else {
+        $ConfigData = @{}
+    }
+
+    # Initialize Plugins array if it doesn't exist
+    if (-not $ConfigData.Plugins) {
+        $ConfigData.Plugins = @()
+    }
+
+    # Add new plugin data
+    $ConfigData.Plugins += $PluginData
+
+    # Save updated configuration
+    New-ConfigFile -ConfigPath $ConfigPath -Format "json" -ConfigData $ConfigData
+    Write-Host "Plugin '$PluginName' registered successfully."
+}
+
+# Example usage of the functions
+$configDirectory = "C:\msys64\home\okpal\My Content Creations\ParaCreator\ParaPlugins\Config"
+
+# Create a JSON config file if it doesn't exist
+if (-not (Test-Path "$configDirectory\paraConfig.json")) {
+    $configData = @{
+        "Environment" = "Development"
+        "APIKey" = "12345-ABCDE"
+        "Database" = @{
+            "Host" = "localhost"
+            "Port" = 5432
+            "User" = "user"
+            "Password" = "password"
+        }
+    }
+    New-ConfigFile -ConfigPath $configDirectory -Format "json" -ConfigData $configData
+}
 
 
 # Function to load plugins
@@ -76,8 +131,8 @@ function New-ParaStructure {
     }
 
     # Default subdirectories to create
-    $defaultSubdirectories = @("code", "videos", "bloopers", "working-git-project")
-    
+    $defaultSubdirectories = @("src", "assets", "projects", "resources")
+
     # Validate and combine default and custom subdirectories
     $validCustomSubdirs = @()
     foreach ($subdir in $CustomSubdirectories) {
