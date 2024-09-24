@@ -1,3 +1,59 @@
+function New-ConfigFile {
+    param (
+        [string]$ConfigPath,
+        [string]$Format,
+        [hashtable]$ConfigData
+    )
+
+    # Create the config directory if it doesn't exist
+    if (-not (Test-Path $ConfigPath)) {
+        New-Item -Path $ConfigPath -ItemType Directory -Force | Out-Null
+    }
+
+    # Set the file name based on the format
+    $FileName = "config.$Format"
+    $FullPath = Join-Path -Path $ConfigPath -ChildPath $FileName
+
+    switch ($Format.ToLower()) {
+        "json" {
+            $JsonContent = $ConfigData | ConvertTo-Json -Depth 5
+            Set-Content -Path $FullPath -Value $JsonContent
+            Write-Host "JSON configuration file created at: $FullPath"
+        }
+        "yaml" {
+            # Install the YamlDotNet module if not already installed
+            if (-not (Get-Module -ListAvailable -Name "powershell-yaml")) {
+                Install-Module -Name "powershell-yaml" -Scope CurrentUser -Force
+            }
+
+            $YamlContent = $ConfigData | ConvertTo-Yaml
+            Set-Content -Path $FullPath -Value $YamlContent
+            Write-Host "YAML configuration file created at: $FullPath"
+        }
+        default {
+            Write-Error "Unsupported format. Please specify 'json' or 'yaml'."
+        }
+    }
+}
+
+# Example usage
+$configDirectory = "C:\msys64\home\okpal\My Content Creations\ParaCreator\ParaPlugins\Config"
+$configData = @{
+    "Environment" = "Development"
+    "APIKey" = "12345-ABCDE"
+    "Database" = @{
+        "Host" = "localhost"
+        "Port" = 5432
+        "User" = "user"
+        "Password" = "password"
+    }
+}
+
+# Create a YAML config file if it doesn't exist
+if (-not (Test-Path "$configDirectory\ParaConfig.yaml")) {
+    New-ConfigFile -ConfigPath $configDirectory -Format "yaml" -ConfigData $configData
+    
+}
 
 function New-Plugin {
     param (
