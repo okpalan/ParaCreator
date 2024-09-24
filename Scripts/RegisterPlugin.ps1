@@ -26,21 +26,6 @@ Export-ModuleMember -Function Invoke-$PluginName
 
 "@ | Set-Content -Path $moduleFile
 
-    # Create a test script file for the plugin
-    $testFile = Join-Path -Path $pluginPath -ChildPath "Test-$PluginName.ps1"
-    @"
-# Import the plugin module
-Import-Module "$moduleFile"
-
-# Test the function
-`$result = Invoke-$PluginName -Parameter1 "TestValue"
-if (`$result -eq "$PluginName executed with parameter: TestValue") {
-    Write-Host "$PluginName test passed."
-} else {
-    Write-Host "$PluginName test failed."
-}
-"@ | Set-Content -Path $testFile
-
     Write-Host "Plugin '$PluginName' created at '$pluginPath'."
 }
 
