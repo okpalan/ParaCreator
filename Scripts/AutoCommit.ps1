@@ -1,7 +1,7 @@
 function AutoCommit {
     param (
         [string]$ProjectPath,
-        [string]$CommitMessage = "ParaCreator/AutoCommit: Automated commit by Scripts/AutoCommit.ps1 for project: $ProjectPath",
+        [string]$CommitMessage = "AutoCommit: Automated commit by ParaCreator/Scripts/AutoCommit.ps1 for project: $ProjectPath",
         [int]$SleepDurationInSeconds = 3600  # Default to 1 hour
     )
 
