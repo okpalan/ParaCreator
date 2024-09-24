@@ -1,3 +1,6 @@
+# ParaCreator.psm1
+
+# Function to create a config file
 function New-ConfigFile {
     param (
         [string]$ConfigPath,
@@ -36,29 +39,7 @@ function New-ConfigFile {
     }
 }
 
-# Example usage
-$configDirectory = "C:\msys64\home\okpal\My Content Creations\ParaCreator\ParaPlugins\Config"
-$configData = @{
-    "Environment" = "Development"
-    "APIKey" = "12345-ABCDE"
-    "Database" = @{
-        "Host" = "localhost"
-        "Port" = 5432
-        "User" = "user"
-        "Password" = "password"
-    }
-}
-
-# Check if the YAML config file exists
-$yamlFilePath = Join-Path -Path $configDirectory -ChildPath "ParaConfig.yaml"
-
-# Create a YAML config file if it doesn't exist
-if (-not (Test-Path $yamlFilePath)) {
-    New-ConfigFile -ConfigPath $configDirectory -Format "yaml" -ConfigData $configData
-} else {
-    Write-Host "YAML configuration file already exists at: $yamlFilePath"
-}
-
+# Function to create a new plugin
 function New-Plugin {
     param (
         [string]$PluginName,
@@ -97,8 +78,7 @@ function New-Plugin {
     Write-Host "Plugin '$PluginName' registered successfully."
 }
 
-
-# Function to load plugins
+# Function to load plugins from a specified directory
 function Load-Plugins {
     param (
         [string]$PluginDirectory
@@ -119,6 +99,39 @@ function Load-Plugins {
         } catch {
             Write-Error "Failed to load plugin '$($plugin.Name)': $_"
         }
+    }
+}
+
+# Function to update a plugin
+function Update-Plugin {
+    param (
+        [string]$PluginName,
+        [string]$NewFilePath,
+        [string]$ConfigPath
+    )
+
+    # Load existing configuration
+    $ConfigFilePath = Join-Path -Path $ConfigPath -ChildPath "paraConfig.json"
+
+    if (Test-Path $ConfigFilePath) {
+        $ConfigData = Get-Content -Path $ConfigFilePath | ConvertFrom-Json
+    } else {
+        Write-Error "Configuration file not found at: $ConfigFilePath"
+        return
+    }
+
+    # Find the plugin in the configuration
+    $plugin = $ConfigData.Plugins | Where-Object { $_.Name -eq $PluginName }
+
+    if ($plugin) {
+        # Update the plugin's file path
+        $plugin.FilePath = $NewFilePath
+
+        # Save updated configuration
+        New-ConfigFile -ConfigPath $ConfigPath -Format "json" -ConfigData $ConfigData
+        Write-Host "Plugin '$PluginName' updated successfully."
+    } else {
+        Write-Error "Plugin '$PluginName' not found."
     }
 }
 
@@ -203,9 +216,4 @@ function New-ParaStructure {
             Write-Verbose "Overwritten existing subdirectory: $subPath"
         }
     }
-
-    Write-Host "Project structure created successfully at '$projectPath'."
-    return $projectPath
 }
-
-Export-ModuleMember -Function New-ParaStructure
