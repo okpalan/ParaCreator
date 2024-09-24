@@ -11,7 +11,7 @@ function New-ConfigFile {
     }
 
     # Set the file name based on the format
-    $FileName = "config.$Format"
+    $FileName = "ParaConfig.$Format"
     $FullPath = Join-Path -Path $ConfigPath -ChildPath $FileName
 
     switch ($Format.ToLower()) {
@@ -49,10 +49,14 @@ $configData = @{
     }
 }
 
+# Check if the YAML config file exists
+$yamlFilePath = Join-Path -Path $configDirectory -ChildPath "ParaConfig.yaml"
+
 # Create a YAML config file if it doesn't exist
-if (-not (Test-Path "$configDirectory\ParaConfig.yaml")) {
+if (-not (Test-Path $yamlFilePath)) {
     New-ConfigFile -ConfigPath $configDirectory -Format "yaml" -ConfigData $configData
-    
+} else {
+    Write-Host "YAML configuration file already exists at: $yamlFilePath"
 }
 
 function New-Plugin {
@@ -91,24 +95,6 @@ function New-Plugin {
     # Save updated configuration
     New-ConfigFile -ConfigPath $ConfigPath -Format "json" -ConfigData $ConfigData
     Write-Host "Plugin '$PluginName' registered successfully."
-}
-
-# Example usage of the functions
-$configDirectory = "C:\msys64\home\okpal\My Content Creations\ParaCreator\ParaPlugins\Config"
-
-# Create a JSON config file if it doesn't exist
-if (-not (Test-Path "$configDirectory\paraConfig.json")) {
-    $configData = @{
-        "Environment" = "Development"
-        "APIKey" = "12345-ABCDE"
-        "Database" = @{
-            "Host" = "localhost"
-            "Port" = 5432
-            "User" = "user"
-            "Password" = "password"
-        }
-    }
-    New-ConfigFile -ConfigPath $configDirectory -Format "json" -ConfigData $configData
 }
 
 
@@ -187,7 +173,7 @@ function New-ParaStructure {
     }
 
     # Default subdirectories to create
-    $defaultSubdirectories = @("src", "assets", "projects", "resources")
+    $defaultSubdirectories = @("archieves", "assets", "projects", "resources")
 
     # Validate and combine default and custom subdirectories
     $validCustomSubdirs = @()
