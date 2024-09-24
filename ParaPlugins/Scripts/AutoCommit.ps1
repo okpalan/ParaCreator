@@ -29,3 +29,5 @@ while ($true) {
     # Wait for the specified duration before checking again
     Start-Sleep -Seconds $SleepDurationInSeconds
 }
+
+Export -ModuleMember -Function AutoCommit

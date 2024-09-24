@@ -15,5 +15,8 @@ function Import-CorrectModule {
     } else {
         Write-Host "Module not found: $ModulePath" -ForegroundColor Red
     }
+
+
 }
 
+Export-ModuleMember -Function Import-CorrectModule
