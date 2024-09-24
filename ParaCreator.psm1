@@ -179,3 +179,14 @@ function Update-Plugin {
         Write-Error "Plugin '$PluginName' not found."
     }
 }
+
+
+Export-ModuleMember -Function @(
+    "Load-Plugins",
+    "Update-Plugin",
+    "New-ProjectTemplate",
+    "New-ParaStructure",
+    "Get-PluginInfo",
+    "Remove-Plugin",
+    "New-ConfigFile",
+)
