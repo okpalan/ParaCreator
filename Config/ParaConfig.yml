@@ -1,0 +1,43 @@
+# General Project Settings
+Project:
+  Name: "MyParaProject"
+  Version: "1.0.0"
+  Description: "This project is created using the ParaCreator framework."
+  Author: "Nnamdi Okpala"
+  License: "MIT"
+
+# Directory Settings
+Directories:
+  Base: "C:/path/to/ParaCreator/projects"
+  Templates: "C:/path/to/ParaCreator/templates"
+  Plugins: "C:/path/to/ParaCreator/plugins"
+
+# Template Settings
+Templates:
+  Default: "DefaultTemplate"
+  Available:
+    - "Template1"
+    - "Template2"
+    - "Template3"
+
+# Plugin Settings
+Plugins:
+  Enabled:
+    - "PluginA"
+    - "PluginB"
+  AutoLoad: true
+
+# Logging Settings
+Logging:
+  Level: "Info" # Options: Debug, Info, Warn, Error
+  File: "C:/path/to/ParaCreator/logs/ParaCreator.log"
+
+# User-Defined Settings
+User:
+  CustomVariable: "ExampleValue"
+
+# Example of Adding Additional Configuration
+Extra:
+  Features:
+    EnableFeatureX: true
+    EnableFeatureY: false
