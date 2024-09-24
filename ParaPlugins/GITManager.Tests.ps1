@@ -1,5 +1,5 @@
 
-# Import the GitManager module if needed
+# Import the GitManager module for testing
 Import-Module -Name "./GitManager.psm1" -Force
 
 # Define the project path for testing
