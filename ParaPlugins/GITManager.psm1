@@ -1,8 +1,10 @@
+
 function Initialize-GitRepo {
     param (
         [string]$ProjectPath
     )
     Write-Host "Initializing Git repository at: $ProjectPath"
+    
     # Logic to run git init and set up initial commit
     if (-not (Test-Path $ProjectPath)) {
         Write-Error "The specified project path does not exist."
@@ -21,7 +23,6 @@ function Initialize-GitRepo {
     & git commit -m "Initial commit"
     Write-Host "Initial commit created."
 }
-
 
 function Manage-GitSubmodules {
     param (
@@ -71,3 +72,4 @@ function Manage-GitSubmodules {
         }
     }
 }
+

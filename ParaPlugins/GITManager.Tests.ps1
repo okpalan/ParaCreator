@@ -1,8 +1,14 @@
+
 # Import the GitManager module if needed
 Import-Module -Name "./GitManager.psm1" -Force
 
 # Define the project path for testing
 $projectPath = "C:\path\to\your\test-directory"
+
+# Create the test directory if it doesn't exist
+if (-not (Test-Path $projectPath)) {
+    New-Item -Path $projectPath -ItemType Directory -Force
+}
 
 # Call the Initialize-GitRepo function
 Initialize-GitRepo -ProjectPath $projectPath
@@ -22,3 +28,4 @@ if ($commitCount -eq 1) {
 } else {
     Write-Host "Test Failed: No initial commit found."
 }
+
