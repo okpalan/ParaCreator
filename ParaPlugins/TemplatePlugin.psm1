@@ -1,5 +1,3 @@
-# TemplatePlugin.psm1
-
 function New-ProjectTemplate {
     [CmdletBinding()]
     param (
@@ -7,7 +5,10 @@ function New-ProjectTemplate {
         [string]$TemplateName,
 
         [Parameter(Mandatory = $true, HelpMessage = "Base directory to create the template in.")]
-        [string]$BaseDirectory
+        [string]$BaseDirectory,
+
+        [Parameter(Mandatory = $false, HelpMessage = "Name of the plugin to create (optional).")]
+        [string]$PluginName
     )
 
     # Validate Template Name
@@ -29,8 +30,73 @@ function New-ProjectTemplate {
             New-Item -Path (Join-Path -Path $templatePath -ChildPath "README.md") -ItemType File -Force | Out-Null
             New-Item -Path (Join-Path -Path $templatePath -ChildPath "LICENSE") -ItemType File -Force | Out-Null
             
-            # Add other default files as needed
-            # e.g., New-Item -Path (Join-Path -Path $templatePath -ChildPath "main.ps1") -ItemType File -Force | Out-Null
+            # Create ParaPlugins directory if PluginName is provided
+            if ($PluginName) {
+                # Validate Plugin Name
+                if ($PluginName -match '[<>:"/\\|?*]') {
+                    Write-Error "Plugin name contains invalid characters."
+                    return
+                }
+
+                # Define path for the plugin
+                $pluginPath = Join-Path -Path $templatePath -ChildPath "ParaPlugins"
+                if (-not (Test-Path -Path $pluginPath)) {
+                    New-Item -Path $pluginPath -ItemType Directory -Force | Out-Null
+                    Write-Host "Created ParaPlugins directory: $pluginPath"
+                }
+
+                # Create the plugin directory
+                $pluginDir = Join-Path -Path $pluginPath -ChildPath $PluginName
+                if (-not (Test-Path -Path $pluginDir)) {
+                    New-Item -Path $pluginDir -ItemType Directory -Force | Out-Null
+                    Write-Host "Created plugin directory: $pluginDir"
+
+                    # Create the plugin files with documentation
+                    $pluginFile = Join-Path -Path $pluginDir -ChildPath "$PluginName.psm1"
+                    $testFile = Join-Path -Path $pluginDir -ChildPath "Test-$PluginName.ps1"
+
+                    # Plugin script file content
+                    $pluginContent = @"
+<#
+.SYNOPSIS
+    Plugin for $PluginName.
+.DESCRIPTION
+    This module provides functionalities for $PluginName.
+#>
+function New-$PluginName {
+    [CmdletBinding()]
+    param (
+        [string]`$Parameter1
+    )
+    # Implementation of your plugin function
+}
+"@
+                    # Create the plugin script file
+                    Set-Content -Path $pluginFile -Value $pluginContent
+
+                    # Test script file content
+                    $testContent = @"
+<#
+.SYNOPSIS
+    Unit tests for $PluginName.
+.DESCRIPTION
+    This script contains unit tests for the functionalities provided by the $PluginName module.
+#>
+Describe '$PluginName Tests' {
+    It 'should do something' {
+        # Add your test logic here
+        $true | Should -Be $true
+    }
+}
+"@
+                    # Create the test script file
+                    Set-Content -Path $testFile -Value $testContent
+
+                    Write-Host "Created plugin files: $PluginName.psm1 and Test-$PluginName.ps1 in '$pluginDir'."
+                } else {
+                    Write-Host "Plugin directory already exists: $pluginDir"
+                }
+            }
 
             Write-Host "Template created successfully at '$templatePath'."
         } catch {
@@ -44,25 +110,3 @@ function New-ProjectTemplate {
 }
 
 Export-ModuleMember -Function New-ProjectTemplate
-
-function Get-AvailableTemplates {
-    param (
-        [string]$BaseDirectory
-    )
-    
-    if (Test-Path -Path $BaseDirectory) {
-        $templates = Get-ChildItem -Path $BaseDirectory -Directory
-        if ($templates) {
-            Write-Host "Available Templates:"
-            $templates | ForEach-Object { Write-Host "- $_.Name" }
-        } else {
-            Write-Host "No templates found in '$BaseDirectory'."
-        }
-    } else {
-        Write-Error "Base directory does not exist: $BaseDirectory"
-    }
-}
-
-Export-ModuleMember -Function Get-AvailableTemplates
-
-
