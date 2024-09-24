@@ -156,7 +156,7 @@ function Update-Plugin {
     )
 
     # Load existing configuration
-    $ConfigFilePath = Join-Path -Path $ConfigPath -ChildPath "paraConfig.json"
+    $ConfigFilePath = Join-Path -Path $ConfigPath -ChildPath "ParaConfig.json"
 
     if (Test-Path $ConfigFilePath) {
         $ConfigData = Get-Content -Path $ConfigFilePath | ConvertFrom-Json
