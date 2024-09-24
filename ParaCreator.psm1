@@ -38,45 +38,93 @@ function New-ConfigFile {
         }
     }
 }
-
-# Function to create a new plugin
-function New-Plugin {
+function New-ParaStructure {
+    [CmdletBinding()]
     param (
-        [string]$PluginName,
-        [string]$Description,
-        [string]$FilePath,
-        [string]$ConfigPath
+        [Parameter(Mandatory = $true, HelpMessage = "Base directory for the project.")]
+        [string]$BaseDirectory,
+
+        [Parameter(Mandatory = $true, HelpMessage = "Name of the project.")]
+        [string]$ProjectName,
+
+        [Parameter(Mandatory = $false, HelpMessage = "Custom subdirectories to create.")]
+        [string[]]$CustomSubdirectories = @(),
+
+        [switch]$Force
     )
 
-    # Create the plugin hashtable
-    $PluginData = @{
-        Name        = $PluginName
-        Description = $Description
-        FilePath    = $FilePath
-        Registered  = (Get-Date).ToString("o") # ISO 8601 format
+    # Create base directory if it doesn't exist
+    if (-not (Test-Path $BaseDirectory)) {
+        New-Item -Path $BaseDirectory -ItemType Directory -Force | Out-Null
+        Write-Host "Base directory created at: $BaseDirectory"
     }
 
-    # Load existing configuration
-    $ConfigFilePath = Join-Path -Path $ConfigPath -ChildPath "paraConfig.json"
+    # Validate Project Name
+    if ($ProjectName -match '[<>:"/\\|?*]') {
+        Write-Error "Project name contains invalid characters."
+        return
+    }
 
-    if (Test-Path $ConfigFilePath) {
-        $ConfigData = Get-Content -Path $ConfigFilePath | ConvertFrom-Json
+    # Define the path for the new project
+    $projectPath = Join-Path -Path $BaseDirectory -ChildPath $ProjectName
+
+    # Create the base project directory if it doesn't exist
+    if (-not (Test-Path -Path $projectPath)) {
+        try {
+            New-Item -Path $projectPath -ItemType Directory -Force | Out-Null
+            Write-Verbose "Created project directory: $projectPath"
+        } catch {
+            Write-Error "Failed to create project directory: $_"
+            return
+        }
+    } elseif (-not $Force) {
+        Write-Host "Project directory already exists: $projectPath"
+        return
     } else {
-        $ConfigData = @{}
+        Remove-Item -Path $projectPath -Recurse -Force -ErrorAction Stop
+        New-Item -Path $projectPath -ItemType Directory -Force | Out-Null
+        Write-Verbose "Overwritten existing project directory: $projectPath"
     }
 
-    # Initialize Plugins array if it doesn't exist
-    if (-not $ConfigData.Plugins) {
-        $ConfigData.Plugins = @()
+    # Default subdirectories to create
+    $defaultSubdirectories = @("archives", "assets", "projects", "resources")
+
+    # Validate and combine default and custom subdirectories
+    $validCustomSubdirs = @()
+    foreach ($subdir in $CustomSubdirectories) {
+        if ($subdir -and $subdir -notmatch '[<>:"/\\|?*]') {
+            $validCustomSubdirs += $subdir
+        } else {
+            Write-Warning "Custom subdirectory '$subdir' is invalid and will be ignored."
+        }
     }
 
-    # Add new plugin data
-    $ConfigData.Plugins += $PluginData
+    $subdirectories = $defaultSubdirectories + $validCustomSubdirs | Select-Object -Unique
 
-    # Save updated configuration
-    New-ConfigFile -ConfigPath $ConfigPath -Format "json" -ConfigData $ConfigData
-    Write-Host "Plugin '$PluginName' registered successfully."
+    # Create each subdirectory and .gitkeep file
+    foreach ($subdirectory in $subdirectories) {
+        $subPath = Join-Path -Path $projectPath -ChildPath $subdirectory
+        if (-not (Test-Path -Path $subPath)) {
+            try {
+                New-Item -Path $subPath -ItemType Directory -Force | Out-Null
+                Write-Verbose "Created subdirectory: $subPath"
+
+                # Create .gitkeep file to ensure the directory is tracked by Git
+                New-Item -Path (Join-Path -Path $subPath -ChildPath ".gitkeep") -ItemType File -Force | Out-Null
+            } catch {
+                Write-Error "Failed to create subdirectory or .gitkeep: $_"
+            }
+        } elseif (-not $Force) {
+            Write-Host "Subdirectory already exists: $subPath"
+        } else {
+            Remove-Item -Path $subPath -Recurse -Force -ErrorAction Stop
+            New-Item -Path $subPath -ItemType Directory -Force | Out-Null
+            New-Item -Path (Join-Path -Path $subPath -ChildPath ".gitkeep") -ItemType File -Force | Out-Null
+            Write-Verbose "Overwritten existing subdirectory: $subPath"
+        }
+    }
 }
+
 
 # Function to load plugins from a specified directory
 function Load-Plugins {
