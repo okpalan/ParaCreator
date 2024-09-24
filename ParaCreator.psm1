@@ -38,6 +38,7 @@ function New-ConfigFile {
         }
     }
 }
+
 function New-ParaStructure {
     [CmdletBinding()]
     param (
@@ -124,7 +125,6 @@ function New-ParaStructure {
         }
     }
 }
-
 
 # Function to load plugins from a specified directory
 function Load-Plugins {
