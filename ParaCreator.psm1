@@ -38,7 +38,7 @@ function New-ConfigFile {
         }
     }
 }
-
+# Function to create a project structure with subdirectories and .gitkeep files
 function New-ParaStructure {
     [CmdletBinding()]
     param (
@@ -53,12 +53,6 @@ function New-ParaStructure {
 
         [switch]$Force
     )
-
-    # Create base directory if it doesn't exist
-    if (-not (Test-Path $BaseDirectory)) {
-        New-Item -Path $BaseDirectory -ItemType Directory -Force | Out-Null
-        Write-Host "Base directory created at: $BaseDirectory"
-    }
 
     # Validate Project Name
     if ($ProjectName -match '[<>:"/\\|?*]') {
@@ -82,6 +76,7 @@ function New-ParaStructure {
         Write-Host "Project directory already exists: $projectPath"
         return
     } else {
+        # If force is specified, remove the existing directory
         Remove-Item -Path $projectPath -Recurse -Force -ErrorAction Stop
         New-Item -Path $projectPath -ItemType Directory -Force | Out-Null
         Write-Verbose "Overwritten existing project directory: $projectPath"
