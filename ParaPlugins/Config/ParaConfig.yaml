@@ -1,0 +1,8 @@
+Environment: Development
+APIKey: 12345-ABCDE
+Database:
+  Host: localhost
+  Password: password
+  Port: 5432
+  User: user
+

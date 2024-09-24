@@ -135,9 +135,7 @@ function New-ParaStructure {
         [Parameter(Mandatory = $false, HelpMessage = "Custom subdirectories to create.")]
         [string[]]$CustomSubdirectories = @(),
 
-        [switch]$Force,
-
-        [switch]$Verbose
+        [switch]$Force
     )
 
     # Validate Project Name
@@ -153,9 +151,7 @@ function New-ParaStructure {
     if (-not (Test-Path -Path $projectPath)) {
         try {
             New-Item -Path $projectPath -ItemType Directory -Force | Out-Null
-            if ($Verbose) {
-                Write-Verbose "Created project directory: $projectPath"
-            }
+            Write-Verbose "Created project directory: $projectPath"
         } catch {
             Write-Error "Failed to create project directory: $_"
             return
@@ -167,13 +163,11 @@ function New-ParaStructure {
         # If force is specified, remove the existing directory
         Remove-Item -Path $projectPath -Recurse -Force -ErrorAction Stop
         New-Item -Path $projectPath -ItemType Directory -Force | Out-Null
-        if ($Verbose) {
-            Write-Verbose "Overwritten existing project directory: $projectPath"
-        }
+        Write-Verbose "Overwritten existing project directory: $projectPath"
     }
 
     # Default subdirectories to create
-    $defaultSubdirectories = @("archieves", "assets", "projects", "resources")
+    $defaultSubdirectories = @("archives", "assets", "projects", "resources")
 
     # Validate and combine default and custom subdirectories
     $validCustomSubdirs = @()
@@ -193,9 +187,7 @@ function New-ParaStructure {
         if (-not (Test-Path -Path $subPath)) {
             try {
                 New-Item -Path $subPath -ItemType Directory -Force | Out-Null
-                if ($Verbose) {
-                    Write-Verbose "Created subdirectory: $subPath"
-                }
+                Write-Verbose "Created subdirectory: $subPath"
 
                 # Create .gitkeep file to ensure the directory is tracked by Git
                 New-Item -Path (Join-Path -Path $subPath -ChildPath ".gitkeep") -ItemType File -Force | Out-Null
@@ -208,18 +200,11 @@ function New-ParaStructure {
             Remove-Item -Path $subPath -Recurse -Force -ErrorAction Stop
             New-Item -Path $subPath -ItemType Directory -Force | Out-Null
             New-Item -Path (Join-Path -Path $subPath -ChildPath ".gitkeep") -ItemType File -Force | Out-Null
-            if ($Verbose) {
-                Write-Verbose "Overwritten existing subdirectory: $subPath"
-            }
+            Write-Verbose "Overwritten existing subdirectory: $subPath"
         }
     }
 
-    if ($Verbose) {
-        Write-Verbose "Project structure created successfully!"
-    } else {
-        Write-Host "Project structure created successfully at '$projectPath'."
-    }
-
+    Write-Host "Project structure created successfully at '$projectPath'."
     return $projectPath
 }
 
