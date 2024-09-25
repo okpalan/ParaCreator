@@ -1,6 +1,6 @@
 
 # Import the GitManager module for testing
-Import-Module -Name "./GitManager.psm1" -Force
+Import-Module -Name "./ParaGIT.psm1" -Force
 
 # Define the project path for testing
 $projectPath = "C:\path\to\your\test-directory"

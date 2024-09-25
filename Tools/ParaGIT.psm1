@@ -23,7 +23,8 @@ function Initialize-GitRepo {
     & git commit -m "Initial commit"
     Write-Host "Initial commit created."
 }
-Exort-ModuleMember -Function Initialize-GitRepo
+
+Export-ModuleMember -Function Initialize-GitRepo
 
 function Manage-GitSubmodules {
     param (

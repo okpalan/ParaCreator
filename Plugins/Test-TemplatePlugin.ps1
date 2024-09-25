@@ -1,6 +1,6 @@
 # Import the necessary modules
 Import-Module Pester
-Import-Module -Name "C:\Path\To\ParaCreator\ParaPlugins\TemplatePlugin.psm1" -Force
+Import-Module -Name "./TemplatePlugin.psm1" -Force
 
 Describe "Template Plugin Tests" {
 

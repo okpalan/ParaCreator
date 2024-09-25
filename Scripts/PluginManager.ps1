@@ -4,7 +4,7 @@ function Add-Plugin {
     )
 
     # Define the base path for plugins
-    $basePath = "C:\msys64\home\okpal\My Content Creations\ParaCreator\Plugins"
+    $basePath = "./Plugins"
 
     # Create the plugin directory
     $pluginPath = Join-Path -Path $basePath -ChildPath $PluginName
