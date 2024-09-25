@@ -188,5 +188,5 @@ Export-ModuleMember -Function @(
     "New-ParaStructure",
     "Get-PluginInfo",
     "Remove-Plugin",
-    "New-ConfigFile",
+    "New-ConfigFile"
 )
